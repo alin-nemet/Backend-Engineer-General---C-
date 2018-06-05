@@ -26,7 +26,7 @@ namespace Csv.Tests
         }
 
         [Test]
-        public void OpensFileInReadMode()
+        public void CallsFileOpenerInReadMode()
         {
             var filePath = "filePath";
             var openMode = CSVReaderWriter.Mode.Read;
@@ -35,7 +35,7 @@ namespace Csv.Tests
         }
 
         [Test]
-        public void OpensFileInWriteMode()
+        public void CallsFileOpenerInWriteMode()
         {
             var filePath = "filePath";
             var openMode = CSVReaderWriter.Mode.Write;
@@ -44,7 +44,7 @@ namespace Csv.Tests
         }
 
         [Test]
-        public void WritesToFileWhenCallingWrite()
+        public void FileWriterIsCalledWhenCallingWrite()
         {
             var columns = new[] { "one", "two" };
             var handleStreams = A.Fake<IHandleStreams>();
@@ -58,7 +58,7 @@ namespace Csv.Tests
         }
 
         [Test]
-        public void ReadsFileContents()
+        public void FileReaderIsCallledWhenCallingRead()
         {
             var handleStreams = A.Fake<IHandleStreams>();
             handleStreams.StreamReader = new StreamReader(new MemoryStream(Encoding.Default.GetBytes("hello")));
