@@ -16,6 +16,10 @@ namespace AddressProcessing.CSV
         private readonly IWriteFile _fileWriter;
         private IHandleStreams _streamHandler;
 
+        // this forces modifying AddressFileProcessor, though it was specifically required not to
+        // I opted this way since it just felt natural to abstract away and inject the resultant
+        // interfaces into constructor (though probably will break "production code" ) while
+        // testing also becomes easier
         public CSVReaderWriter(IOpenFile fileOpener, IReadFile fileReader, IWriteFile fileWriter)
         {
             _fileOpener = fileOpener;
