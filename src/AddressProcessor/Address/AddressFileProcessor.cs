@@ -7,26 +7,28 @@ namespace AddressProcessing.Address
     public class AddressFileProcessor
     {
         private readonly IMailShot _mailShot;
+        private readonly ICsvReaderWriter _csvReaderWriter;
 
-        public AddressFileProcessor(IMailShot mailShot)
+        public AddressFileProcessor(IMailShot mailShot, ICsvReaderWriter csvReaderWriter)
         {
             if (mailShot == null) throw new ArgumentNullException("mailShot");
             _mailShot = mailShot;
+            _csvReaderWriter = csvReaderWriter;
         }
 
         public void Process(string inputFile)
         {
-            var reader = new CSVReaderWriter();
-            reader.Open(inputFile, CSVReaderWriter.Mode.Read);
-
-            string column1, column2;
-
-            while(reader.Read(out column1, out column2))
+            using (_csvReaderWriter)
             {
-                _mailShot.SendMailShot(column1, column2);
-            }
+                _csvReaderWriter.Open(inputFile, CSVReaderWriter.Mode.Read);
 
-            reader.Close();
+                string column1, column2;
+
+                while (_csvReaderWriter.Read(out column1, out column2))
+                {
+                    _mailShot.SendMailShot(column1, column2);
+                }
+            }
         }
     }
 }

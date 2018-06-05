@@ -1,5 +1,7 @@
 ﻿using AddressProcessing.Address;
 using AddressProcessing.Address.v1;
+using AddressProcessing.CSV;
+using Csv.Tests;
 using NUnit.Framework;
 
 namespace AddressProcessing.Tests
@@ -19,7 +21,8 @@ namespace AddressProcessing.Tests
         [Test]
         public void Should_send_mail_using_mailshot_service()
         {
-            var processor = new AddressFileProcessor(_fakeMailShotService);
+            var processor = new AddressFileProcessor(_fakeMailShotService,
+                new CSVReaderWriter(new FileOpener(), new FileReader(), new FileWriter()));
             processor.Process(TestInputFile);
 
             Assert.That(_fakeMailShotService.Counter, Is.EqualTo(229));

@@ -4,6 +4,6 @@ namespace Csv.Tests
 {
     public interface IOpenFile
     {
-        void Open(string filePath, CSVReaderWriter.Mode mode);
+        IHandleStreams Open(string filePath, CSVReaderWriter.Mode mode);
     }
 }

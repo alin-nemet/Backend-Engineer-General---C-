@@ -12,7 +12,7 @@ namespace AddressProcessing.CSV
         *) Convoluted code, the class does too many things
            (open, read, write, produce output, release resource, so it violates single rispomnsability principle);
            Unused methods and variables (Read, column1,column2); can be simplified, using more abstractions,
-           exposing fucntionality through interfaces
+           exposing functionality through interfaces
         *) Testability is a problem, no mockable interfaces, thus hard to unit test
         *) WriteLine method could use a stringbuilder, which is more efficient than concatenating strings.
            Streams are IDisposable objects, using statement can be used to free resources instead of explicitly handling it

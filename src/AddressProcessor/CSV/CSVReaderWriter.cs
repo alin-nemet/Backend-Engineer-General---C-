@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Csv.Tests;
 
 namespace AddressProcessing.CSV
@@ -15,150 +14,45 @@ namespace AddressProcessing.CSV
         private readonly IOpenFile _fileOpener;
         private readonly IReadFile _fileReader;
         private readonly IWriteFile _fileWriter;
-        private StreamReader _readerStream = null;
-        private StreamWriter _writerStream = null;
+        private IHandleStreams _streamHandler;
+
+        public CSVReaderWriter(IOpenFile fileOpener, IReadFile fileReader, IWriteFile fileWriter)
+        {
+            _fileOpener = fileOpener;
+            _fileReader = fileReader;
+            _fileWriter = fileWriter;
+        }
 
         [Flags]
         public enum Mode { Read = 1, Write = 2 };
 
         public void Open(string fileName, Mode mode)
         {
-            _fileOpener.Open(fileName, mode);
-            if (mode == Mode.Read)
-            {
-//                _readerStream = File.OpenText(fileName);
-_fileOpener.Open(file);
-            }
-            else if (mode == Mode.Write)
-            {
-                FileInfo fileInfo = new FileInfo(fileName);
-                _writerStream = fileInfo.CreateText();
-            }
-            else
-            {
-                throw new Exception("Unknown file mode for " + fileName);
-            }
+            _streamHandler = _fileOpener.Open(fileName, mode);
         }
 
         public void Write(params string[] columns)
         {
-            string outPut = "";
-
-            for (int i = 0; i < columns.Length; i++)
+            if (_streamHandler?.StreamWriter == null)
             {
-                outPut += columns[i];
-                if ((columns.Length - 1) != i)
-                {
-                    outPut += "\t";
-                }
+                throw new Exception("Cannot write file, failed to acquire write mode");
             }
-
-            WriteLine(outPut);
-        }
-
-        public bool Read(string column1, string column2)
-        {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
-
-            string line;
-            string[] columns;
-
-            char[] separator = { '\t' };
-
-            line = ReadLine();
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            }
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
+            _fileWriter.Write(columns, _streamHandler);
         }
 
         public bool Read(out string column1, out string column2)
         {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
-
-            string line;
-            string[] columns;
-
-            char[] separator = { '\t' };
-
-            line = ReadLine();
-
-            if (line == null)
+            if (_streamHandler?.StreamReader == null)
             {
-                column1 = null;
-                column2 = null;
-
-                return false;
+                throw new Exception("Can not read the file, failed to acquire read mode");
             }
-
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            } 
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
+            return _fileReader.Read(out column1, out column2, _streamHandler);
         }
 
-        private void WriteLine(string line)
+        public void Dispose()
         {
-            _writerStream.WriteLine(line);
+            _streamHandler.StreamReader?.Close();
+            _streamHandler.StreamWriter?.Close();
         }
-
-        private string ReadLine()
-        {
-            return _readerStream.ReadLine();
-        }
-
-        public void Close()
-        {
-            if (_writerStream != null)
-            {
-                _writerStream.Close();
-            }
-
-            if (_readerStream != null)
-            {
-                _readerStream.Close();
-            }
-        }
-    }
-
-    public interface IWriteFile
-    {
-    }
-
-    public interface IReadFile
-    {
-    }
-
-    public interface ICsvReaderWriter
-    {
-        void Open(string fileName, CSVReaderWriter.Mode mode);
-        void Write(params string[] columns);
-        bool Read(string column1, string column2);
     }
 }
